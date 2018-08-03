@@ -1,0 +1,10 @@
+syntax = "proto3";
+package com.audio.grpc;
+
+message Feature {
+    string value = 1;
+}
+
+service AudioFE {
+    rpc getFeature(Feature) returns (Feature) {}
+}
