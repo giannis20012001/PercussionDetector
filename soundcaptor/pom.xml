@@ -12,6 +12,12 @@
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>eu.ubitech</groupId>
+            <artifactId>percussiondetectorserver</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <!-- 3rd party dependencies -->
         <!-- https://mvnrepository.com/artifact/com.github.axet/TarsosDSP -->
         <dependency>
