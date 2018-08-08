@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+package audiostreamservice;
+
+option java_multiple_files = false;
+option java_package = "eu.ubitech.grcp";
+option java_outer_classname = "AudioStreamService";
+
+message ByteStream {
+    bytes byte_chunk = 1;
+}
+
+service AudioStream {
+    rpc GetAudioStream(stream ByteStream) returns (google.protobuf.Empty);
+}
