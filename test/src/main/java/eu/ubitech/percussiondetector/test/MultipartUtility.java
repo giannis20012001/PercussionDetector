@@ -1,4 +1,4 @@
-package eu.ubitech.percussiondetectorserver;
+package eu.ubitech.percussiondetector.test;
 
 import java.io.BufferedReader;
 import java.io.File;

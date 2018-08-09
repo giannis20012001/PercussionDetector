@@ -1,4 +1,4 @@
-package eu.ubitech.percussiondetectorserver;
+package eu.ubitech.percussiondetector.test;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
@@ -36,6 +36,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 
 public class PercussionDetectorSwing extends JFrame implements OnsetHandler {
+    @SuppressWarnings("Duplicates")
     private JSlider initialzeThresholdSlider() {
         JSlider thresholdSlider = new JSlider(0,20);
         thresholdSlider.setValue((int)threshold);
@@ -72,6 +73,7 @@ public class PercussionDetectorSwing extends JFrame implements OnsetHandler {
 
     }
 
+    @SuppressWarnings("Duplicates")
     private JSlider initializeSensitivitySlider(){
         JSlider sensitivitySlider = new JSlider(0,100);
         sensitivitySlider.setValue((int)sensitivity);

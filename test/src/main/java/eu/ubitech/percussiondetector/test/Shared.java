@@ -1,4 +1,4 @@
-package eu.ubitech.percussiondetectorserver;
+package eu.ubitech.percussiondetector.test;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer.Info;

@@ -13,36 +13,33 @@ import java.util.logging.Logger;
  *
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
-
-
 public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplBase {
     /**
-     * Gets a stream of points, and responds with statistics about the "trip": number of points,
-     * number of known features visited, total distance traveled, and total time spent.
+     * It receives a stream of bytes. It then passes the stream through an algorithm to detect possible percussion.
      *
-     * @param responseObserver an observer to receive the response summary.
-     * @return an observer to receive the requested route points.
+     * @param responseObserver an empty (dummy) observer ro maintain correct structure.
+     * @return an observer to receive the requested stream of bytes.
      */
     @Override
-    public StreamObserver<AudioStreamService.ByteStream> getAudioStream(StreamObserver<Empty> responseObserver) {
+    public StreamObserver<AudioStreamService.ByteStream> setAudioStream(StreamObserver<Empty> responseObserver) {
         return new StreamObserver<AudioStreamService.ByteStream>() {
             @Override
             public void onNext(AudioStreamService.ByteStream byteStream) {
-                logger.log(Level.INFO, "Got ByteStream chunk....");
-                logger.log(Level.INFO, byteStream.toString());
+                LOGGER.log(Level.INFO, "Received ByteStream chunk....");
+                LOGGER.log(Level.INFO, byteStream.toString());
 
             }
 
             @Override
             public void onError(Throwable t) {
-                logger.log(Level.WARNING, "A ByteStream chunk did not transmit correctly....");
+                LOGGER.log(Level.WARNING, "A ByteStream chunk did not transmit correctly....");
 
             }
 
             @Override
             public void onCompleted() {
-                logger.log(Level.INFO, "ByteStream transmission completed....");
-                logger.log(Level.INFO, "No errors detected during transmission....");
+                LOGGER.log(Level.INFO, "ByteStream transmission completed....");
+                LOGGER.log(Level.INFO, "No errors detected during transmission....");
                 responseObserver.onCompleted();
 
             }
@@ -54,6 +51,6 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
     //==================================================================================================================
     //Entity variables
     //==================================================================================================================
-    private static final Logger logger = Logger.getLogger(AudioStreamServiceGrcpImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AudioStreamServiceGrcpImpl.class.getName());
 
 }

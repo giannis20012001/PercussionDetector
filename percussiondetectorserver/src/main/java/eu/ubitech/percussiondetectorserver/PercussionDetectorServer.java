@@ -54,6 +54,9 @@ public class PercussionDetectorServer {
 
     }
 
+    //==================================================================================================================
+    //Main method
+    //==================================================================================================================
     public static void main(String[] args) throws IOException, InterruptedException {
         PercussionDetectorServer server = new PercussionDetectorServer();
         server.start();

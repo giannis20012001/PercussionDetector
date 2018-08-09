@@ -1,4 +1,4 @@
-package eu.ubitech.percussiondetectorserver;
+package eu.ubitech.percussiondetector.test;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
@@ -18,7 +18,6 @@ import javax.sound.sampled.TargetDataLine;
  *
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
-
 public class PercussionDetector implements OnsetHandler {
     @SuppressWarnings("Duplicates")
     private void setNewMixer(Mixer mixer) throws LineUnavailableException {
@@ -30,7 +29,6 @@ public class PercussionDetector implements OnsetHandler {
         float sampleRate = 44100;
         int bufferSize = 512;
         int overlap = 0;
-        //final int numberOfSamples = bufferSize;
 
         //==============================================================================================================
         //==============================================================================================================
@@ -108,6 +106,5 @@ public class PercussionDetector implements OnsetHandler {
     private double threshold;
     private double sensitivity;
     private  AudioDispatcher dispatcher;
-    private static final long serialVersionUID = 1L;
 
 }
