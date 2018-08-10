@@ -9,7 +9,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;;
 
-import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.TargetDataLine;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -27,12 +27,12 @@ public class GrpcTransmitter implements Runnable {
      * features} with a variable delay in between.
      */
     private void setAudioStream() throws IOException {
-        info("Setting AudioStream...");
+        info("Setting AudioStream....");
         final CountDownLatch finishLatch = new CountDownLatch(1);
         StreamObserver<Empty> responseObserver = new StreamObserver<Empty>() {
             @Override
             public void onNext(Empty emptyResponse) {
-                info("Transmission of sound stream finished successfully...");
+                info("Transmission of sound stream finished successfully....");
 
             }
 
@@ -45,7 +45,7 @@ public class GrpcTransmitter implements Runnable {
 
             @Override
             public void onCompleted() {
-                info("Transmission of sound stream finished successfully...");
+                info("Transmission of sound stream finished successfully....");
                 info("No errors detected during transmission....");
                 finishLatch.countDown();
 
@@ -54,10 +54,9 @@ public class GrpcTransmitter implements Runnable {
         };
 
         StreamObserver<AudioStreamService.ByteStream> requestObserver = asyncStub.setAudioStream(responseObserver);
-        info("Begin transmission streaming byte chunks...");
+        info("Begin transmission streaming byte chunks....");
         try {
-            int bytes = 0;
-            while ((bytes = stream.read(tempBuffer)) != 0) {
+            while (targetDataLine.read(tempBuffer, 0, tempBuffer.length) != 0) {
                 //Sending sound byte chunks to server
                 AudioStreamService.ByteStream chunk = AudioStreamService.ByteStream.newBuilder()
                         .setByteChunk(
@@ -133,10 +132,10 @@ public class GrpcTransmitter implements Runnable {
     //Entity constructor
     //==================================================================================================================
     /**
-     *Construct client for accessing PercussionDetectorServer
+     *Parametrised Constructor
      * */
-    GrpcTransmitter(AudioInputStream stream) {
-        this.stream = stream;
+    GrpcTransmitter(TargetDataLine targetDataLine) {
+        this.targetDataLine = targetDataLine;
         //Create a gRPC channel for Stub
         channel = ManagedChannelBuilder.forAddress(HOSTNAME, PORT).usePlaintext(true).build();
         asyncStub = AudioStreamGrpc.newStub(channel);
@@ -146,9 +145,9 @@ public class GrpcTransmitter implements Runnable {
     //==================================================================================================================
     //Entity variables
     //==================================================================================================================
-    private AudioInputStream stream;
-    private byte tempBuffer[] = new byte[512];
+    private byte tempBuffer[] = new byte[4096];
     private final ManagedChannel channel;
+    private final TargetDataLine targetDataLine;
     private final AudioStreamGrpc.AudioStreamStub asyncStub;
     //=========================================================
     private final static int PORT = 50000;

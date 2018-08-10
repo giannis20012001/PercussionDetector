@@ -11,12 +11,11 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 /**
- * Created by John Tsantilis on 2/8/2018.
+ * Created by John Tsantilis on 10/8/2018.
  *
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
-
-public class PercussionDetectorServer {
+public class GrcpServer {
     /** Start serving requests. */
     public void start() throws IOException {
         server.start();
@@ -25,7 +24,7 @@ public class PercussionDetectorServer {
                 new Thread(() -> {
                     //Use stderr here since the LOGGER may has been reset by its JVM shutdown hook.
                     System.err.println("*** shutting down gRPC server since JVM is shutting down");
-                    PercussionDetectorServer.this.stop();
+                    GrcpServer.this.stop();
                     System.err.println("*** server shut down");
 
                 })
@@ -54,13 +53,16 @@ public class PercussionDetectorServer {
 
     }
 
-    //==================================================================================================================
-    //Main method
-    //==================================================================================================================
-    public static void main(String[] args) throws IOException, InterruptedException {
-        PercussionDetectorServer server = new PercussionDetectorServer();
-        server.start();
-        server.blockUntilShutdown();
+    public static void main(String[] args) {
+        GrcpServer server = new GrcpServer();
+        try {
+            server.start();
+            server.blockUntilShutdown();
+
+        } catch (IOException | InterruptedException e) {
+            LOGGER.severe(e.getMessage());
+
+        }
 
     }
 
@@ -68,7 +70,7 @@ public class PercussionDetectorServer {
     //Entity constructor
     //==================================================================================================================
     /** Create a RouteGuide server using serverBuilder as a base */
-    public PercussionDetectorServer() {
+    private GrcpServer() {
         ServerBuilder builder = NettyServerBuilder.forAddress(new InetSocketAddress(HOSTNAME, PORT));
         Executor executor = MoreExecutors.directExecutor();
         builder.executor(executor);
@@ -82,6 +84,6 @@ public class PercussionDetectorServer {
     private final Server server;
     private final static int PORT = 50000;
     private final static String HOSTNAME = "localhost";
-    private static final Logger LOGGER = Logger.getLogger(PercussionDetectorServer.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GrcpServer.class.getName());
 
 }

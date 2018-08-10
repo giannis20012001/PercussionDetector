@@ -22,11 +22,15 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
      */
     @Override
     public StreamObserver<AudioStreamService.ByteStream> setAudioStream(StreamObserver<Empty> responseObserver) {
+        PercussionDetector percussionDetector = new PercussionDetector(receivedAudioData);
+        percussionDetector.setNewMixer();
+
         return new StreamObserver<AudioStreamService.ByteStream>() {
             @Override
             public void onNext(AudioStreamService.ByteStream byteStream) {
-                LOGGER.log(Level.INFO, "Received ByteStream chunk....");
-                LOGGER.log(Level.INFO, byteStream.toString());
+                /*LOGGER.log(Level.INFO, "Received ByteStream chunk....");
+                LOGGER.log(Level.INFO, byteStream.toString());*/
+                receivedAudioData = byteStream.getByteChunk().toByteArray();
 
             }
 
@@ -49,8 +53,21 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
     }
 
     //==================================================================================================================
+    //Entity constructor
+    //==================================================================================================================
+    /**
+     * Default constructor
+     *
+     */
+    AudioStreamServiceGrcpImpl() {
+        super();
+
+    }
+
+    //==================================================================================================================
     //Entity variables
     //==================================================================================================================
+    private byte receivedAudioData[] = new byte[4096];
     private static final Logger LOGGER = Logger.getLogger(AudioStreamServiceGrcpImpl.class.getName());
 
 }

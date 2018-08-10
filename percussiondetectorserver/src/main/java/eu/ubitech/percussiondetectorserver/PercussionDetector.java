@@ -1,4 +1,4 @@
-package eu.ubitech.percussiondetector.test;
+package eu.ubitech.percussiondetectorserver;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
@@ -10,35 +10,44 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Logger;
 
 /**
- * Created by John Tsantilis on 31/7/2018.
+ * Created by John Tsantilis on 2/8/2018.
  *
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
+
 public class PercussionDetector implements OnsetHandler {
-    private void setNewMixer(Mixer mixer) throws LineUnavailableException {
+    public void setNewMixer() {
         if(dispatcher!= null) {
             dispatcher.stop();
 
         }
 
         float sampleRate = 44100;
-        int bufferSize = 512;
+        int bufferSize = 4096;
         int overlap = 0;
 
         //==============================================================================================================
         //==============================================================================================================
-        final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
-        final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
-        TargetDataLine line;
-        line = (TargetDataLine) mixer.getLine(dataLineInfo);
-        line.open(format, bufferSize); //bufferSize --> numberOfSamples
-        line.start();
-        final AudioInputStream stream = new AudioInputStream(line);
-        JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
+        InputStream byteInputStream = new ByteArrayInputStream(receivedAudioData);
+        final AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, true, true);
+
+        LOGGER.info(String.valueOf(receivedAudioData.length));
+        LOGGER.info(String.valueOf(audioFormat.getFrameSize()));
+
+        AudioInputStream inputStream = new AudioInputStream(
+                byteInputStream,
+                audioFormat,
+                4096); //receivedAudioData.length / audioFormat.getFrameSize()
+
+        JVMAudioInputStream audioStream = new JVMAudioInputStream(inputStream);
         // create a new dispatcher
         dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
         // add a processor, handle percussion event.
@@ -53,8 +62,7 @@ public class PercussionDetector implements OnsetHandler {
 
         //==============================================================================================================
         //==============================================================================================================
-        System.out.println("Started listening with " + Shared.toLocalString(mixer.getMixerInfo().getName())
-                + " params: " + sensitivity + "%, " + threshold + "dB");
+        LOGGER.info("Started listening to input stream with params: " + sensitivity + "%, " + threshold + "dB");
 
     }
 
@@ -64,38 +72,20 @@ public class PercussionDetector implements OnsetHandler {
 
     }
 
-    public static void main(String[] args) {
-        new PercussionDetector();
-
-    }
-
     //==================================================================================================================
-    //Constructors
+    //Entity constructor
     //==================================================================================================================
     /**
      * Default constructor
+     *
      */
-    public PercussionDetector() {
+    PercussionDetector(byte receivedAudioData[]) {
+        //initialize input stream buffer (byte array)
+        this.receivedAudioData = receivedAudioData;
         //initialize Sensitivity (in percentage)
         this.sensitivity = 20.0;
-        //initialze Threshold (in dB)
+        //initialize Threshold (in dB)
         this.threshold = 8.0;
-        for(Mixer.Info info : Shared.getMixerInfo(false, true)){
-            System.out.println(info);
-            if (info.getName().contains("default")) {
-                try {
-                    setNewMixer(AudioSystem.getMixer(info));
-
-                } catch (LineUnavailableException e) {
-                    e.printStackTrace();
-
-                }
-
-                break;
-
-            }
-
-        }
 
     }
 
@@ -104,6 +94,8 @@ public class PercussionDetector implements OnsetHandler {
     //==================================================================================================================
     private double threshold;
     private double sensitivity;
-    private  AudioDispatcher dispatcher;
+    private byte receivedAudioData[];
+    private AudioDispatcher dispatcher;
+    private static final Logger LOGGER = Logger.getLogger(PercussionDetector.class.getName());
 
 }

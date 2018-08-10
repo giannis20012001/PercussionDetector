@@ -3,7 +3,6 @@ package eu.ubitech.soundcaptor;
 import eu.ubitech.percussiondetectorserver.Shared;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
@@ -17,18 +16,17 @@ import java.util.logging.Logger;
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
 public class SoundCaptorClient {
-    @SuppressWarnings("Duplicates")
     public void captureAudio(Mixer mixer) throws LineUnavailableException {
         float sampleRate = 44100;
-        int bufferSize = 512;
+        int bufferSize = 4096;
 
         final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
         final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
-        targetDataLine = (TargetDataLine) mixer.getLine(dataLineInfo);
+        TargetDataLine targetDataLine = (TargetDataLine) mixer.getLine(dataLineInfo);
         targetDataLine.open(format, bufferSize); //bufferSize --> numberOfSamples
         targetDataLine.start();
-        final AudioInputStream stream = new AudioInputStream(targetDataLine);
-        Thread soundTransmitter = new Thread(new GrpcTransmitter(stream));
+        //create a separate thread to run gRCP transmission process
+        Thread soundTransmitter = new Thread(new GrpcTransmitter(targetDataLine));
         soundTransmitter.start();
         LOGGER.info("Started listening to input mic with " + Shared.toLocalString(mixer.getMixerInfo().getName()));
 
@@ -73,7 +71,6 @@ public class SoundCaptorClient {
     //Entity variables
     //==================================================================================================================
     private Mixer mixer;
-    TargetDataLine targetDataLine;
     private static final Logger LOGGER = Logger.getLogger(GrpcTransmitter.class.getName());
 
 }

@@ -17,11 +17,11 @@ import java.net.DatagramSocket;
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
 public class VUServer {
-    ByteArrayOutputStream byteOutputStream;
-    AudioFormat adFormat;
-    TargetDataLine targetDataLine;
-    AudioInputStream InputStream;
-    SourceDataLine sourceLine;
+    private ByteArrayOutputStream byteOutputStream;
+    private AudioFormat adFormat;
+    private TargetDataLine targetDataLine;
+    private AudioInputStream inputStream;
+    private SourceDataLine sourceLine;
 
     private AudioFormat getAudioFormat() {
         float sampleRate = 16000.0F;
@@ -48,7 +48,7 @@ public class VUServer {
                     byte audioData[] = receivePacket.getData();
                     java.io.InputStream byteInputStream = new ByteArrayInputStream(audioData);
                     AudioFormat adFormat = getAudioFormat();
-                    InputStream = new AudioInputStream(byteInputStream, adFormat, audioData.length / adFormat.getFrameSize());
+                    inputStream = new AudioInputStream(byteInputStream, adFormat, audioData.length / adFormat.getFrameSize());
                     DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class, adFormat);
                     sourceLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
                     sourceLine.open(adFormat);
@@ -72,7 +72,7 @@ public class VUServer {
         public void run() {
             try {
                 int cnt;
-                while ((cnt = InputStream.read(tempBuffer, 0, tempBuffer.length)) != -1) {
+                while ((cnt = inputStream.read(tempBuffer, 0, tempBuffer.length)) != -1) {
                     if (cnt > 0) {
                         sourceLine.write(tempBuffer, 0, cnt);
                     }
