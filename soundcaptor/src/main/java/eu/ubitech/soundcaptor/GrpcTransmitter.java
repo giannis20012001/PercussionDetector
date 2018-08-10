@@ -54,11 +54,11 @@ public class GrpcTransmitter implements Runnable {
         };
 
         StreamObserver<AudioStreamService.ByteStream> requestObserver = asyncStub.setAudioStream(responseObserver);
+        info("Begin transmission streaming byte chunks...");
         try {
             int bytes = 0;
             while ((bytes = stream.read(tempBuffer)) != 0) {
                 //Sending sound byte chunks to server
-                info("Transmitting byte chunk: {0}", bytes);
                 AudioStreamService.ByteStream chunk = AudioStreamService.ByteStream.newBuilder()
                         .setByteChunk(
                                 ByteString.copyFrom(
@@ -66,6 +66,7 @@ public class GrpcTransmitter implements Runnable {
                                         0,
                                         tempBuffer.length))
                         .build();
+                //info("Transmitting byte chunk: {0}", chunk);
                 requestObserver.onNext(chunk); //Send stream
                 if (finishLatch.getCount() == 0) {
                     // RPC completed or errored before we finished sending.
