@@ -93,7 +93,7 @@
                     <!-- MainClass in manifest make a executable jar -->
                     <archive>
                         <manifest>
-                            <mainClass>eu.ubitech.percussiondetectorserver.GrcpServer</mainClass>
+                            <mainClass>eu.ubitech.percussiondetector.percussiondetectorserver.GrcpServer</mainClass>
                         </manifest>
                     </archive>
                     <!-- get all project dependencies -->

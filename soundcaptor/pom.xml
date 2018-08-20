@@ -48,7 +48,7 @@
                     <!-- MainClass in manifest make a executable jar -->
                     <archive>
                         <manifest>
-                            <mainClass>eu.ubitech.soundcaptor.SoundCaptorClient</mainClass>
+                            <mainClass>eu.ubitech.percussiondetector.soundcaptor.SoundCaptorClient</mainClass>
                         </manifest>
                     </archive>
                     <!-- get all project dependencies -->

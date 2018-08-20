@@ -1,6 +1,6 @@
-package eu.ubitech.soundcaptor;
+package eu.ubitech.percussiondetector.soundcaptor;
 
-import eu.ubitech.percussiondetectorserver.Shared;
+import eu.ubitech.percussiondetector.percussiondetectorserver.Shared;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;

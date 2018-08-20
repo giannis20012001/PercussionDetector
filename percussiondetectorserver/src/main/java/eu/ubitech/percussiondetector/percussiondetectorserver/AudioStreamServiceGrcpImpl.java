@@ -1,4 +1,4 @@
-package eu.ubitech.percussiondetectorserver;
+package eu.ubitech.percussiondetector.percussiondetectorserver;
 
 import com.google.protobuf.Empty;
 import eu.ubitech.grcp.AudioStreamGrpc;

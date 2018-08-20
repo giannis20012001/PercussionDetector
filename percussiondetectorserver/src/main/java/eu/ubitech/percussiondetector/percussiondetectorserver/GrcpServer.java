@@ -1,4 +1,4 @@
-package eu.ubitech.percussiondetectorserver;
+package eu.ubitech.percussiondetector.percussiondetectorserver;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import io.grpc.Server;

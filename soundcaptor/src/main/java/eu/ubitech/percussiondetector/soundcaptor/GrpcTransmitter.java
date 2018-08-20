@@ -1,4 +1,4 @@
-package eu.ubitech.soundcaptor;
+package eu.ubitech.percussiondetector.soundcaptor;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
