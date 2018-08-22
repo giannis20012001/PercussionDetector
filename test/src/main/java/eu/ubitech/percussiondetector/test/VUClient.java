@@ -123,6 +123,7 @@ public class VUClient extends JFrame {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private AudioFormat getAudioFormat() {
         float sampleRate = 16000.0F;
         int sampleInbits = 16;

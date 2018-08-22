@@ -16,44 +16,43 @@ import java.util.logging.Logger;
  *
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
-
 public class PercussionDetector implements OnsetHandler {
-    public void setNewMixer() {
+    public void setDispatcher() {
         if(dispatcher!= null) {
             dispatcher.stop();
 
         }
 
-        float sampleRate = 44100;
-        int bufferSize = 4096;
+        //float sampleRate = 44100;
+        float sampleRate = 16000;
+        //int bufferSize = 4096;
+        int bufferSize = 10000;
         int overlap = 0;
 
         //==============================================================================================================
         //==============================================================================================================
-        InputStream byteInputStream = new ByteArrayInputStream(receivedAudioData);
-        final AudioFormat audioFormat = new AudioFormat(sampleRate, 16, 1, true, true);
-
-        LOGGER.info(String.valueOf(receivedAudioData.length));
-        LOGGER.info(String.valueOf(audioFormat.getFrameSize()));
-
-        AudioInputStream inputStream = new AudioInputStream(
+        InputStream byteInputStream = new ByteArrayInputStream(AudioStreamServiceGrcpImpl.getReceivedAudioData());
+        final AudioFormat audioFormat = getAudioFormat();
+        final AudioInputStream audioInputStream = new AudioInputStream(
                 byteInputStream,
                 audioFormat,
-                4096); //receivedAudioData.length / audioFormat.getFrameSize()
-
-        JVMAudioInputStream audioStream = new JVMAudioInputStream(inputStream);
+                AudioStreamServiceGrcpImpl.getReceivedAudioData().length / audioFormat.getFrameSize());
+        JVMAudioInputStream audioStream = new JVMAudioInputStream(audioInputStream);
         // create a new dispatcher
         dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
         // add a processor, handle percussion event.
-        dispatcher.addAudioProcessor(new PercussionOnsetDetector(
-                sampleRate,
-                bufferSize,
-                this,
-                sensitivity,
-                threshold));
+        dispatcher.addAudioProcessor(
+                new PercussionOnsetDetector(
+                        sampleRate,
+                        bufferSize,
+                        this,
+                        sensitivity,
+                        threshold)
+        );
         // run the dispatcher (on a new thread).
-        new Thread(dispatcher,"Audio dispatching").start();
-
+        //new Thread(dispatcher,"Audio dispatching").start();
+        thread = new Thread(dispatcher,"Audio dispatching");
+        thread.start();
         //==============================================================================================================
         //==============================================================================================================
         LOGGER.info("Started listening to input stream with params: " + sensitivity + "%, " + threshold + "dB");
@@ -62,7 +61,28 @@ public class PercussionDetector implements OnsetHandler {
 
     @Override
     public void handleOnset(double time, double salience) {
-        System.out.println("Percussion at:" + time + "\n");
+        LOGGER.info("Percussion at:" + time);
+
+    }
+
+    @SuppressWarnings("Duplicates")
+    private AudioFormat getAudioFormat() {
+        //float sampleRate = 44100F;
+        float sampleRate = 16000F;
+        int sampleSizeInBits = 16;
+        int channels = 1;
+        boolean signed = true;
+        boolean bigEndian = false;
+
+        return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
+
+    }
+
+    //==================================================================================================================
+    //Getter & setters
+    //==================================================================================================================
+    public Thread getThread() {
+        return thread;
 
     }
 
@@ -73,22 +93,21 @@ public class PercussionDetector implements OnsetHandler {
      * Default constructor
      *
      */
-    PercussionDetector(byte receivedAudioData[]) {
-        //initialize input stream buffer (byte array)
-        this.receivedAudioData = receivedAudioData;
+    PercussionDetector() {
         //initialize Sensitivity (in percentage)
         this.sensitivity = 20.0;
         //initialize Threshold (in dB)
         this.threshold = 8.0;
+        //setDispatcher();
 
     }
 
     //==================================================================================================================
     //Entity variables
     //==================================================================================================================
+    private Thread thread;
     private double threshold;
     private double sensitivity;
-    private byte receivedAudioData[];
     private AudioDispatcher dispatcher;
     private static final Logger LOGGER = Logger.getLogger(PercussionDetector.class.getName());
 

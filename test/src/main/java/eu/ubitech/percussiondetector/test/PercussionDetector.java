@@ -75,7 +75,7 @@ public class PercussionDetector implements OnsetHandler {
     /**
      * Default constructor
      */
-    public PercussionDetector() {
+    private PercussionDetector() {
         //initialize Sensitivity (in percentage)
         this.sensitivity = 20.0;
         //initialze Threshold (in dB)

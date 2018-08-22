@@ -56,15 +56,15 @@ public class GrpcTransmitter implements Runnable {
         StreamObserver<AudioStreamService.ByteStream> requestObserver = asyncStub.setAudioStream(responseObserver);
         info("Begin transmission streaming byte chunks....");
         try {
-            while (targetDataLine.read(tempBuffer, 0, tempBuffer.length) != 0) {
+            while (targetDataLine.read(audioBuffer, 0, audioBuffer.length) != 0) {
                 //Sending sound byte chunks to server
-                AudioStreamService.ByteStream chunk = AudioStreamService.ByteStream.newBuilder()
-                        .setByteChunk(
+                AudioStreamService.ByteStream chunk =
+                        AudioStreamService.ByteStream.newBuilder().setByteChunk(
                                 ByteString.copyFrom(
-                                        tempBuffer,
+                                        audioBuffer,
                                         0,
-                                        tempBuffer.length))
-                        .build();
+                                        audioBuffer.length))
+                                .build();
                 //info("Transmitting byte chunk: {0}", chunk);
                 requestObserver.onNext(chunk); //Send stream
                 if (finishLatch.getCount() == 0) {
@@ -137,7 +137,8 @@ public class GrpcTransmitter implements Runnable {
     GrpcTransmitter(TargetDataLine targetDataLine) {
         this.targetDataLine = targetDataLine;
         //Create a gRPC channel for Stub
-        channel = ManagedChannelBuilder.forAddress(HOSTNAME, PORT).usePlaintext(true).build();
+        //channel = ManagedChannelBuilder.forAddress(HOSTNAME, PORT).usePlaintext(true).build();
+        channel = ManagedChannelBuilder.forAddress(HOSTNAME, PORT).usePlaintext().build();
         asyncStub = AudioStreamGrpc.newStub(channel);
 
     }
@@ -145,7 +146,7 @@ public class GrpcTransmitter implements Runnable {
     //==================================================================================================================
     //Entity variables
     //==================================================================================================================
-    private byte tempBuffer[] = new byte[4096];
+    private final byte audioBuffer[] = new byte[10000];
     private final ManagedChannel channel;
     private final TargetDataLine targetDataLine;
     private final AudioStreamGrpc.AudioStreamStub asyncStub;

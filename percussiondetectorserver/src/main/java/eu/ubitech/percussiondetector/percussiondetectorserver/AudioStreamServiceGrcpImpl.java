@@ -22,15 +22,19 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
      */
     @Override
     public StreamObserver<AudioStreamService.ByteStream> setAudioStream(StreamObserver<Empty> responseObserver) {
-        PercussionDetector percussionDetector = new PercussionDetector(receivedAudioData);
-        percussionDetector.setNewMixer();
+        percussionDetector.setDispatcher();
+        LOGGER.log(Level.INFO, "No. of active thread: " + Thread.activeCount());
+        LOGGER.log(Level.INFO, percussionDetector.getThread().toString());
+        LOGGER.log(Level.INFO, String.valueOf(percussionDetector.getThread().isAlive()));
 
         return new StreamObserver<AudioStreamService.ByteStream>() {
             @Override
             public void onNext(AudioStreamService.ByteStream byteStream) {
                 /*LOGGER.log(Level.INFO, "Received ByteStream chunk....");
                 LOGGER.log(Level.INFO, byteStream.toString());*/
+                //======================================================================================================
                 receivedAudioData = byteStream.getByteChunk().toByteArray();
+                //LOGGER.log(Level.INFO, Arrays.toString(receivedAudioData));
 
             }
 
@@ -53,6 +57,14 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
     }
 
     //==================================================================================================================
+    //Getter & setters
+    //==================================================================================================================
+    public static byte[] getReceivedAudioData() {
+        return receivedAudioData;
+
+    }
+
+    //==================================================================================================================
     //Entity constructor
     //==================================================================================================================
     /**
@@ -61,13 +73,18 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
      */
     AudioStreamServiceGrcpImpl() {
         super();
+        //initialize input stream buffer (byte array)
+        receivedAudioData = new byte[10000];
+        //Set Percussion detection engine
+        percussionDetector = new PercussionDetector();
 
     }
 
     //==================================================================================================================
     //Entity variables
     //==================================================================================================================
-    private byte receivedAudioData[] = new byte[4096];
+    private PercussionDetector percussionDetector;
+    private static byte[] receivedAudioData;
     private static final Logger LOGGER = Logger.getLogger(AudioStreamServiceGrcpImpl.class.getName());
 
 }

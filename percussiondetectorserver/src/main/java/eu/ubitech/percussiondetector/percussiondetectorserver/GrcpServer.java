@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public class GrcpServer {
     /** Start serving requests. */
-    public void start() throws IOException {
+    private void start() throws IOException {
         server.start();
         LOGGER.info("Server started, listening on " + PORT);
         Runtime.getRuntime().addShutdownHook(
@@ -34,7 +34,7 @@ public class GrcpServer {
     }
 
     /** Stop serving requests and shutdown resources. */
-    public void stop() {
+    private void stop() {
         if (server != null) {
             server.shutdown();
 

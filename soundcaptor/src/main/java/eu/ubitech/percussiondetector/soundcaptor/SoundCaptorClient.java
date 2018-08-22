@@ -16,19 +16,30 @@ import java.util.logging.Logger;
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
 public class SoundCaptorClient {
-    public void captureAudio(Mixer mixer) throws LineUnavailableException {
-        float sampleRate = 44100;
-        int bufferSize = 4096;
-
-        final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, true);
-        final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, format);
+    private void captureAudio(Mixer mixer) throws LineUnavailableException {
+        final AudioFormat audioFormat = getAudioFormat();
+        final DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
         TargetDataLine targetDataLine = (TargetDataLine) mixer.getLine(dataLineInfo);
-        targetDataLine.open(format, bufferSize); //bufferSize --> numberOfSamples
+        //targetDataLine.open(audioFormat, 10000); //bufferSize --> numberOfSamples
+        targetDataLine.open(audioFormat);
         targetDataLine.start();
         //create a separate thread to run gRCP transmission process
         Thread soundTransmitter = new Thread(new GrpcTransmitter(targetDataLine));
         soundTransmitter.start();
         LOGGER.info("Started listening to input mic with " + Shared.toLocalString(mixer.getMixerInfo().getName()));
+
+    }
+
+    @SuppressWarnings("Duplicates")
+    private AudioFormat getAudioFormat() {
+        //float sampleRate = 44100F;
+        float sampleRate = 16000F;
+        int sampleSizeInBits = 16;
+        int channels = 1;
+        boolean signed = true;
+        boolean bigEndian = false;
+
+        return new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian);
 
     }
 

@@ -23,6 +23,7 @@ public class VUServer {
     private AudioInputStream inputStream;
     private SourceDataLine sourceLine;
 
+    @SuppressWarnings("Duplicates")
     private AudioFormat getAudioFormat() {
         float sampleRate = 16000.0F;
         int sampleInbits = 16;
@@ -65,6 +66,7 @@ public class VUServer {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     class PlayThread extends Thread {
 
         byte tempBuffer[] = new byte[10000];

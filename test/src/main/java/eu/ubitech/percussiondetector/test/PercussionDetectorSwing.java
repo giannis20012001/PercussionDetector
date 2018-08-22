@@ -179,7 +179,7 @@ public class PercussionDetectorSwing extends JFrame implements OnsetHandler {
     //==================================================================================================================
     //Class Constructor
     //==================================================================================================================
-    public PercussionDetectorSwing() {
+    private PercussionDetectorSwing() {
         this.setLayout(new BorderLayout());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Percussion Detector");
