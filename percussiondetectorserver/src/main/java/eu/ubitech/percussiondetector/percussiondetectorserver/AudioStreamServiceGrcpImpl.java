@@ -22,10 +22,9 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
      */
     @Override
     public StreamObserver<AudioStreamService.ByteStream> setAudioStream(StreamObserver<Empty> responseObserver) {
-        percussionDetector.setDispatcher();
-        LOGGER.log(Level.INFO, "No. of active thread: " + Thread.activeCount());
+          /*LOGGER.log(Level.INFO, "No. of active thread: " + Thread.activeCount());
         LOGGER.log(Level.INFO, percussionDetector.getThread().toString());
-        LOGGER.log(Level.INFO, String.valueOf(percussionDetector.getThread().isAlive()));
+        LOGGER.log(Level.INFO, String.valueOf(percussionDetector.getThread().isAlive()));*/
 
         return new StreamObserver<AudioStreamService.ByteStream>() {
             @Override
@@ -33,8 +32,24 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
                 /*LOGGER.log(Level.INFO, "Received ByteStream chunk....");
                 LOGGER.log(Level.INFO, byteStream.toString());*/
                 //======================================================================================================
-                receivedAudioData = byteStream.getByteChunk().toByteArray();
-                //LOGGER.log(Level.INFO, Arrays.toString(receivedAudioData));
+                synchronized(this) {
+                    receivedAudioData = byteStream.getByteChunk().toByteArray();
+                    //LOGGER.log(Level.INFO, Arrays.toString(receivedAudioData));
+                    if (!setDispatcherFlag) {
+                        percussionDetector.setDispatcher();
+
+                    }
+
+                }
+
+                if (setDispatcherFlag) {
+                    percussionDetector.setDispatcher();
+                    LOGGER.info("Started listening to input stream with params: "
+                            + percussionDetector.getSensitivity() + "%, "
+                            + percussionDetector.getThreshold() + "dB");
+                    setDispatcherFlag = false;
+
+                }
 
             }
 
@@ -56,10 +71,34 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
 
     }
 
+    @Override
+    public void setAudio(AudioStreamService.ByteStream response, StreamObserver<Empty> responseObserver) {
+        responseObserver.onNext(doSomething(response));
+        responseObserver.onCompleted();
+
+    }
+
+    private Empty doSomething(AudioStreamService.ByteStream byteStream) {
+        synchronized(this) {
+            receivedAudioData = byteStream.getByteChunk().toByteArray();
+            //LOGGER.log(Level.INFO, Arrays.toString(receivedAudioData));
+
+            if (setDispatcherFlag) {
+                percussionDetector.setDispatcher();
+                setDispatcherFlag = false;
+
+            }
+
+        }
+
+        return Empty.newBuilder().build();
+
+    }
+
     //==================================================================================================================
     //Getter & setters
     //==================================================================================================================
-    public static byte[] getReceivedAudioData() {
+    public static synchronized byte[] getReceivedAudioData() {
         return receivedAudioData;
 
     }
@@ -83,6 +122,7 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
     //==================================================================================================================
     //Entity variables
     //==================================================================================================================
+    private boolean setDispatcherFlag = true;
     private PercussionDetector percussionDetector;
     private static byte[] receivedAudioData;
     private static final Logger LOGGER = Logger.getLogger(AudioStreamServiceGrcpImpl.class.getName());

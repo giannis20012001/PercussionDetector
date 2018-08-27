@@ -1,9 +1,7 @@
 package eu.ubitech.percussiondetector.percussiondetectorserver;
 
-import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.onsets.OnsetHandler;
-import be.tarsos.dsp.onsets.PercussionOnsetDetector;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -23,8 +21,8 @@ public class PercussionDetector implements OnsetHandler {
 
         }
 
-        //float sampleRate = 44100;
-        float sampleRate = 16000;
+        float sampleRate = 44100;
+        //float sampleRate = 16000;
         //int bufferSize = 4096;
         int bufferSize = 10000;
         int overlap = 0;
@@ -53,6 +51,7 @@ public class PercussionDetector implements OnsetHandler {
         //new Thread(dispatcher,"Audio dispatching").start();
         thread = new Thread(dispatcher,"Audio dispatching");
         thread.start();
+
         //==============================================================================================================
         //==============================================================================================================
         LOGGER.info("Started listening to input stream with params: " + sensitivity + "%, " + threshold + "dB");
@@ -67,8 +66,8 @@ public class PercussionDetector implements OnsetHandler {
 
     @SuppressWarnings("Duplicates")
     private AudioFormat getAudioFormat() {
-        //float sampleRate = 44100F;
-        float sampleRate = 16000F;
+        float sampleRate = 44100F;
+        //float sampleRate = 16000F;
         int sampleSizeInBits = 16;
         int channels = 1;
         boolean signed = true;
@@ -86,6 +85,16 @@ public class PercussionDetector implements OnsetHandler {
 
     }
 
+    public double getThreshold() {
+        return threshold;
+
+    }
+
+    public double getSensitivity() {
+        return sensitivity;
+
+    }
+
     //==================================================================================================================
     //Entity constructor
     //==================================================================================================================
@@ -98,7 +107,6 @@ public class PercussionDetector implements OnsetHandler {
         this.sensitivity = 20.0;
         //initialize Threshold (in dB)
         this.threshold = 8.0;
-        //setDispatcher();
 
     }
 

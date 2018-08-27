@@ -7,6 +7,7 @@ import eu.ubitech.grcp.AudioStreamService;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;;
 
 import javax.sound.sampled.TargetDataLine;
@@ -23,8 +24,7 @@ import java.util.logging.Logger;
  */
 public class GrpcTransmitter implements Runnable {
     /**
-     * Async client-streaming. Sends {@code numPoints} randomly chosen points from {@code
-     * features} with a variable delay in between.
+     * Async client-streaming.
      */
     private void setAudioStream() throws IOException {
         info("Setting AudioStream....");
@@ -87,6 +87,33 @@ public class GrpcTransmitter implements Runnable {
 
     }
 
+    /**
+     * Blocking unary call.
+     */
+    private void setAudio() throws IOException {
+        info("Setting Audio byte chunks....");
+
+        try {
+            while (targetDataLine.read(audioBuffer, 0, audioBuffer.length) != 0) {
+                //Sending sound byte chunks to server
+                AudioStreamService.ByteStream chunk =
+                        AudioStreamService.ByteStream.newBuilder().setByteChunk(
+                                ByteString.copyFrom(
+                                        audioBuffer,
+                                        0,
+                                        audioBuffer.length))
+                                .build();
+                blockingStub.setAudio(chunk);
+
+            }
+
+        } catch (StatusRuntimeException e) {
+            warning("RPC failed: {0}", e.getStatus());
+
+        }
+
+    }
+
     private void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
 
@@ -110,7 +137,8 @@ public class GrpcTransmitter implements Runnable {
     @Override
     public void run() {
         try {
-            setAudioStream();
+            //setAudioStream();
+            setAudio();
 
         } catch (IOException e) {
             error(e.getMessage());
@@ -137,9 +165,9 @@ public class GrpcTransmitter implements Runnable {
     GrpcTransmitter(TargetDataLine targetDataLine) {
         this.targetDataLine = targetDataLine;
         //Create a gRPC channel for Stub
-        //channel = ManagedChannelBuilder.forAddress(HOSTNAME, PORT).usePlaintext(true).build();
         channel = ManagedChannelBuilder.forAddress(HOSTNAME, PORT).usePlaintext().build();
         asyncStub = AudioStreamGrpc.newStub(channel);
+        blockingStub = AudioStreamGrpc.newBlockingStub(channel);
 
     }
 
@@ -150,6 +178,7 @@ public class GrpcTransmitter implements Runnable {
     private final ManagedChannel channel;
     private final TargetDataLine targetDataLine;
     private final AudioStreamGrpc.AudioStreamStub asyncStub;
+    private final AudioStreamGrpc.AudioStreamBlockingStub blockingStub;
     //=========================================================
     private final static int PORT = 50000;
     private final static String HOSTNAME = "localhost";

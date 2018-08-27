@@ -32,8 +32,8 @@ public class SoundCaptorClient {
 
     @SuppressWarnings("Duplicates")
     private AudioFormat getAudioFormat() {
-        //float sampleRate = 44100F;
-        float sampleRate = 16000F;
+        float sampleRate = 44100F;
+        //float sampleRate = 16000F;
         int sampleSizeInBits = 16;
         int channels = 1;
         boolean signed = true;
@@ -81,7 +81,6 @@ public class SoundCaptorClient {
     //==================================================================================================================
     //Entity variables
     //==================================================================================================================
-    private Mixer mixer;
     private static final Logger LOGGER = Logger.getLogger(GrpcTransmitter.class.getName());
 
 }
