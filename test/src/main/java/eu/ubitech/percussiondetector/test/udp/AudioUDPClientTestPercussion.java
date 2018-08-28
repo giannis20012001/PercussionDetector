@@ -1,20 +1,56 @@
-package eu.ubitech.percussiondetector.percussiondetectorserver;
+package eu.ubitech.percussiondetector.test.udp;
 
+import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.onsets.OnsetHandler;
+import be.tarsos.dsp.onsets.PercussionOnsetDetector;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.SourceDataLine;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.logging.Logger;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 
 /**
- * Created by John Tsantilis on 2/8/2018.
+ * Created by John Tsantilis on 28/8/2018.
  *
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
-public class PercussionDetector implements OnsetHandler {
+@SuppressWarnings("Duplicates")
+public class AudioUDPClientTestPercussion implements OnsetHandler {
+    private void initiateAudio() {
+        try {
+            DatagramSocket socket = new DatagramSocket(9786);
+            byte[] audioBuffer = new byte[10000];
+            while (true) {
+                DatagramPacket packet = new DatagramPacket(audioBuffer, audioBuffer.length);
+                socket.receive(packet);
+                //System.out.println("RECEIVED: " + packet.getAddress().getHostAddress() + " " + packet.getPort());
+                try {
+                    audioData = packet.getData();
+                    if (setDispatcherFlag) {
+                        setDispatcher();
+                        setDispatcherFlag = false;
+
+                    }
+
+                } catch (Exception e) {
+                    System.out.println(e);
+                    System.exit(0);
+
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
     public void setDispatcher() {
         if(dispatcher!= null) {
             dispatcher.stop();
@@ -30,12 +66,12 @@ public class PercussionDetector implements OnsetHandler {
 
         //==============================================================================================================
         //==============================================================================================================
-        InputStream byteInputStream = new ByteArrayInputStream(audioStreamServiceGrcp.consumeReceivedAudioData());
+        InputStream byteInputStream = new ByteArrayInputStream(audioData);
         final AudioFormat audioFormat = getAudioFormat();
         final AudioInputStream audioInputStream = new AudioInputStream(
                 byteInputStream,
                 audioFormat,
-                audioStreamServiceGrcp.getReceivedAudioData().length / audioFormat.getFrameSize());
+                audioData.length / audioFormat.getFrameSize());
         JVMAudioInputStream audioStream = new JVMAudioInputStream(audioInputStream);
         // create a new dispatcher
         dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
@@ -55,17 +91,16 @@ public class PercussionDetector implements OnsetHandler {
 
         //==============================================================================================================
         //==============================================================================================================
-        LOGGER.info("Started listening to input stream with params: " + sensitivity + "%, " + threshold + "dB");
+        System.out.println("Started listening to input stream with params: " + sensitivity + "%, " + threshold + "dB");
 
     }
 
     @Override
     public void handleOnset(double time, double salience) {
-        LOGGER.info("Percussion at:" + time);
+        System.out.println("Percussion at:" + time);
 
     }
 
-    @SuppressWarnings("Duplicates")
     private AudioFormat getAudioFormat() {
         float sampleRate = 44100F;
         //float sampleRate = 16000F;
@@ -79,51 +114,39 @@ public class PercussionDetector implements OnsetHandler {
     }
 
     //==================================================================================================================
-    //Getter & setters
+    //Main method
     //==================================================================================================================
-    public Thread getThread() {
-        return thread;
-
-    }
-
-    public double getThreshold() {
-        return threshold;
-
-    }
-
-    public double getSensitivity() {
-        return sensitivity;
-
-    }
-
-    public void setAudioStreamServiceGrcp(AudioStreamServiceGrcpImpl audioStreamServiceGrcp) {
-        this.audioStreamServiceGrcp = audioStreamServiceGrcp;
+    public static void main(String[] args) {
+        new AudioUDPClientTestPercussion();
 
     }
 
     //==================================================================================================================
-    //Entity constructor
+    //Class Constructor
     //==================================================================================================================
-    /**
-     * Default constructor
-     *
-     */
-    PercussionDetector() {
+    private AudioUDPClientTestPercussion() {
         //initialize Sensitivity (in percentage)
         this.sensitivity = 20.0;
         //initialize Threshold (in dB)
         this.threshold = 8.0;
 
+        System.out.println("Audio UDP Client Started");
+        initiateAudio();
+        System.out.println("Audio UDP Client Terminated");
+
     }
 
     //==================================================================================================================
-    //Entity variables
+    //Class variables
     //==================================================================================================================
-    private Thread thread;
     private double threshold;
     private double sensitivity;
+    //==================================================================================================================
+    private Thread thread;
+    private byte audioData[];
+    private boolean setDispatcherFlag = true;
     private AudioDispatcher dispatcher;
-    private AudioStreamServiceGrcpImpl audioStreamServiceGrcp;
-    private static final Logger LOGGER = Logger.getLogger(PercussionDetector.class.getName());
+    private SourceDataLine sourceDataLine;
+    private AudioInputStream audioInputStream;
 
 }

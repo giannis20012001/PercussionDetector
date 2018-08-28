@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
-public class GrcpServer {
+public class GrcpServer implements Runnable{
     /** Start serving requests. */
     private void start() throws IOException {
         server.start();
@@ -53,16 +53,21 @@ public class GrcpServer {
 
     }
 
-    public static void main(String[] args) {
-        GrcpServer server = new GrcpServer();
+    @Override
+    public void run() {
         try {
-            server.start();
-            server.blockUntilShutdown();
+            start();
+            blockUntilShutdown();
 
         } catch (IOException | InterruptedException e) {
             LOGGER.severe(e.getMessage());
 
         }
+
+    }
+
+    public static void main(String[] args) {
+        new Thread(new GrcpServer()).start();
 
     }
 
@@ -74,7 +79,7 @@ public class GrcpServer {
         ServerBuilder builder = NettyServerBuilder.forAddress(new InetSocketAddress(HOSTNAME, PORT));
         Executor executor = MoreExecutors.directExecutor();
         builder.executor(executor);
-        server = builder.addService(new AudioStreamServiceGrcpImpl()).build();
+        server = builder.addService(new AudioStreamServiceGrcpImpl(new PercussionDetector())).build();
 
     }
 
