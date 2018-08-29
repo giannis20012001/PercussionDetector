@@ -2,6 +2,7 @@ package eu.ubitech.percussiondetector.percussiondetectorserver;
 
 import be.tarsos.dsp.io.jvm.JVMAudioInputStream;
 import be.tarsos.dsp.onsets.OnsetHandler;
+import be.tarsos.dsp.onsets.PercussionOnsetDetector;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -30,12 +31,12 @@ public class PercussionDetector implements OnsetHandler {
 
         //==============================================================================================================
         //==============================================================================================================
-        InputStream byteInputStream = new ByteArrayInputStream(audioStreamServiceGrcp.consumeReceivedAudioData());
+        InputStream byteInputStream = new ByteArrayInputStream(AudioStreamServiceGrcpImpl.getReceivedAudioData());
         final AudioFormat audioFormat = getAudioFormat();
         final AudioInputStream audioInputStream = new AudioInputStream(
                 byteInputStream,
                 audioFormat,
-                audioStreamServiceGrcp.getReceivedAudioData().length / audioFormat.getFrameSize());
+                 AudioStreamServiceGrcpImpl.getReceivedAudioData().length/ audioFormat.getFrameSize());
         JVMAudioInputStream audioStream = new JVMAudioInputStream(audioInputStream);
         // create a new dispatcher
         dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);
@@ -50,12 +51,11 @@ public class PercussionDetector implements OnsetHandler {
         );
         // run the dispatcher (on a new thread).
         //new Thread(dispatcher,"Audio dispatching").start();
-        thread = new Thread(dispatcher,"Audio dispatching");
-        thread.start();
+        dispatcher.run();
 
         //==============================================================================================================
         //==============================================================================================================
-        LOGGER.info("Started listening to input stream with params: " + sensitivity + "%, " + threshold + "dB");
+        //LOGGER.info("Started listening to input stream with params: " + sensitivity + "%, " + threshold + "dB");
 
     }
 
@@ -96,17 +96,11 @@ public class PercussionDetector implements OnsetHandler {
 
     }
 
-    public void setAudioStreamServiceGrcp(AudioStreamServiceGrcpImpl audioStreamServiceGrcp) {
-        this.audioStreamServiceGrcp = audioStreamServiceGrcp;
-
-    }
-
     //==================================================================================================================
     //Entity constructor
     //==================================================================================================================
     /**
      * Default constructor
-     *
      */
     PercussionDetector() {
         //initialize Sensitivity (in percentage)
@@ -123,7 +117,6 @@ public class PercussionDetector implements OnsetHandler {
     private double threshold;
     private double sensitivity;
     private AudioDispatcher dispatcher;
-    private AudioStreamServiceGrcpImpl audioStreamServiceGrcp;
     private static final Logger LOGGER = Logger.getLogger(PercussionDetector.class.getName());
 
 }

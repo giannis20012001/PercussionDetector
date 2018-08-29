@@ -79,7 +79,7 @@ public class GrcpServer implements Runnable{
         ServerBuilder builder = NettyServerBuilder.forAddress(new InetSocketAddress(HOSTNAME, PORT));
         Executor executor = MoreExecutors.directExecutor();
         builder.executor(executor);
-        server = builder.addService(new AudioStreamServiceGrcpImpl(new PercussionDetector())).build();
+        server = builder.addService(new AudioStreamServiceGrcpImpl()).build();
 
     }
 

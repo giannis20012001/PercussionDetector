@@ -7,7 +7,6 @@ import eu.ubitech.grcp.AudioStreamService;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;;
 
 import javax.sound.sampled.TargetDataLine;
@@ -87,33 +86,6 @@ public class GrpcTransmitter implements Runnable {
 
     }
 
-    /**
-     * Blocking unary call.
-     */
-    private void setAudio() throws IOException {
-        info("Setting Audio byte chunks....");
-
-        try {
-            while (targetDataLine.read(audioBuffer, 0, audioBuffer.length) != 0) {
-                //Sending sound byte chunks to server
-                AudioStreamService.ByteStream chunk =
-                        AudioStreamService.ByteStream.newBuilder().setByteChunk(
-                                ByteString.copyFrom(
-                                        audioBuffer,
-                                        0,
-                                        audioBuffer.length))
-                                .build();
-                blockingStub.setAudio(chunk);
-
-            }
-
-        } catch (StatusRuntimeException e) {
-            warning("RPC failed: {0}", e.getStatus());
-
-        }
-
-    }
-
     private void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
 
@@ -137,8 +109,7 @@ public class GrpcTransmitter implements Runnable {
     @Override
     public void run() {
         try {
-            //setAudioStream();
-            setAudio();
+            setAudioStream();
 
         } catch (IOException e) {
             error(e.getMessage());

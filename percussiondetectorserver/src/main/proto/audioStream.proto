@@ -14,6 +14,5 @@ message ByteStream {
 
 service AudioStream {
     rpc SetAudioStream(stream ByteStream) returns (google.protobuf.Empty);
-    rpc SetAudio(ByteStream) returns (google.protobuf.Empty);
 
 }

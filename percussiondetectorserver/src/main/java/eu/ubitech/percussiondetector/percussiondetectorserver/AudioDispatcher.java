@@ -44,7 +44,7 @@ import java.util.logging.Logger;
  * AudioProcessors and sound. This behavior can be used for visualization.
  * @author Joren Six
  */
-public class AudioDispatcher implements Runnable {
+public class AudioDispatcher {
 
 
 	/**
