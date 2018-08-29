@@ -135,6 +135,7 @@ public class GrpcTransmitter implements Runnable {
      * */
     GrpcTransmitter(TargetDataLine targetDataLine) {
         this.targetDataLine = targetDataLine;
+
         //Create a gRPC channel for Stub
         channel = ManagedChannelBuilder.forAddress(HOSTNAME, PORT).usePlaintext().build();
         asyncStub = AudioStreamGrpc.newStub(channel);
@@ -151,8 +152,8 @@ public class GrpcTransmitter implements Runnable {
     private final AudioStreamGrpc.AudioStreamStub asyncStub;
     private final AudioStreamGrpc.AudioStreamBlockingStub blockingStub;
     //=========================================================
-    private final static int PORT = 50000;
-    private final static String HOSTNAME = "localhost";
+    private final static int PORT = Integer.parseInt(System.getenv("GRPC_SERVER_PORT"));
+    private final static String HOSTNAME = System.getenv("GRPC_SERVER_IP");
     private static final Logger LOGGER = Logger.getLogger(SoundCaptorClient.class.getName());
 
 }

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  *
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
-public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplBase {
+public class AudioStreamServiceGrpcImpl extends AudioStreamGrpc.AudioStreamImplBase {
     /**
      * It receives a stream of bytes. It then passes the stream through an algorithm to detect possible percussion.
      *
@@ -78,7 +78,7 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
     /**
      * Default constructor
      */
-    AudioStreamServiceGrcpImpl() {
+    AudioStreamServiceGrpcImpl() {
         super();
         //initialize input stream buffer (byte array)
         receivedAudioData = new byte[10000];
@@ -93,6 +93,6 @@ public class AudioStreamServiceGrcpImpl extends AudioStreamGrpc.AudioStreamImplB
     private boolean setDispatcherFlag = false;
     private static byte[] receivedAudioData;
     private PercussionDetector percussionDetector;
-    private static final Logger LOGGER = Logger.getLogger(AudioStreamServiceGrcpImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AudioStreamServiceGrpcImpl.class.getName());
 
 }

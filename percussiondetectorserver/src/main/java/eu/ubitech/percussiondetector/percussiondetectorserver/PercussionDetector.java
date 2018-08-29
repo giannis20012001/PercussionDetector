@@ -31,12 +31,12 @@ public class PercussionDetector implements OnsetHandler {
 
         //==============================================================================================================
         //==============================================================================================================
-        InputStream byteInputStream = new ByteArrayInputStream(AudioStreamServiceGrcpImpl.getReceivedAudioData());
+        InputStream byteInputStream = new ByteArrayInputStream(AudioStreamServiceGrpcImpl.getReceivedAudioData());
         final AudioFormat audioFormat = getAudioFormat();
         final AudioInputStream audioInputStream = new AudioInputStream(
                 byteInputStream,
                 audioFormat,
-                 AudioStreamServiceGrcpImpl.getReceivedAudioData().length/ audioFormat.getFrameSize());
+                 AudioStreamServiceGrpcImpl.getReceivedAudioData().length/ audioFormat.getFrameSize());
         JVMAudioInputStream audioStream = new JVMAudioInputStream(audioInputStream);
         // create a new dispatcher
         dispatcher = new AudioDispatcher(audioStream, bufferSize, overlap);

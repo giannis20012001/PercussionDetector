@@ -56,12 +56,11 @@ public class SoundCaptorClient {
     //==================================================================================================================
     /**
      * Default constructor
-     *
      */
     private SoundCaptorClient() {
         for(Mixer.Info info : Shared.getMixerInfo(false, true)){
             LOGGER.info(info.toString());
-            if (info.getName().contains("default")) {
+            if (info.getName().contains("Set")) {
                 try {
                     captureAudio(AudioSystem.getMixer(info));
 

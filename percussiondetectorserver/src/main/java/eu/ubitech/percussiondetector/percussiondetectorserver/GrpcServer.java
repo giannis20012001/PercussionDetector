@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author John Tsantilis <i.tsantilis [at] ubitech [dot] com>
  */
-public class GrcpServer implements Runnable{
+public class GrpcServer implements Runnable{
     /** Start serving requests. */
     private void start() throws IOException {
         server.start();
@@ -24,7 +24,7 @@ public class GrcpServer implements Runnable{
                 new Thread(() -> {
                     //Use stderr here since the LOGGER may has been reset by its JVM shutdown hook.
                     System.err.println("*** shutting down gRPC server since JVM is shutting down");
-                    GrcpServer.this.stop();
+                    GrpcServer.this.stop();
                     System.err.println("*** server shut down");
 
                 })
@@ -67,7 +67,7 @@ public class GrcpServer implements Runnable{
     }
 
     public static void main(String[] args) {
-        new Thread(new GrcpServer()).start();
+        new Thread(new GrpcServer()).start();
 
     }
 
@@ -75,11 +75,11 @@ public class GrcpServer implements Runnable{
     //Entity constructor
     //==================================================================================================================
     /** Create a RouteGuide server using serverBuilder as a base */
-    private GrcpServer() {
+    private GrpcServer() {
         ServerBuilder builder = NettyServerBuilder.forAddress(new InetSocketAddress(HOSTNAME, PORT));
         Executor executor = MoreExecutors.directExecutor();
         builder.executor(executor);
-        server = builder.addService(new AudioStreamServiceGrcpImpl()).build();
+        server = builder.addService(new AudioStreamServiceGrpcImpl()).build();
 
     }
 
@@ -87,8 +87,8 @@ public class GrcpServer implements Runnable{
     //Entity variables
     //==================================================================================================================
     private final Server server;
-    private final static int PORT = 50000;
-    private final static String HOSTNAME = "localhost";
-    private static final Logger LOGGER = Logger.getLogger(GrcpServer.class.getName());
+    private final static int PORT = Integer.parseInt(System.getenv("GRPC_SERVER_PORT"));
+    private final static String HOSTNAME = System.getenv("GRPC_SERVER_IP");
+    private static final Logger LOGGER = Logger.getLogger(GrpcServer.class.getName());
 
 }
